@@ -3,8 +3,9 @@ import router from "./routes/router";
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
-
-const server = new Server();
+//ahora llamo asi a mi clase servidor una vez implementado el patron singleton, evitando que me cree otra instancia de mi server 
+// const server = new Server();
+const server = Server.instance;
 
 //BODYPARSER
 server.app.use( bodyParser.urlencoded({ extended: true }));
