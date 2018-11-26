@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router} from 'express';
 import { get, post, mensajesConId } from '../controllers/mensajes';
 
 const router = Router();
