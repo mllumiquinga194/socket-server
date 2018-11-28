@@ -55,17 +55,19 @@ export default class Server {
             // console.log( cliente.id );
 
             //CONECTAR CLIENTE
-            socketConfig.conectarCliente( cliente );
+            socketConfig.conectarCliente( cliente, this.io );
 
             //CONFIGURAR USUARIO
             socketConfig.loginWs( cliente, this.io );
-            
+
+            //OBTENER USUARIOS ACTIVOS
+            socketConfig.obtenerUsuarios( cliente, this.io );
 
             //MENSAJES
             socketConfig.mensaje( cliente, this.io );
 
             //DESCONECTAR
-            socketConfig.desconectar( cliente );
+            socketConfig.desconectar( cliente, this.io );
 
 
         });

@@ -8,20 +8,24 @@ import { Usuario } from '../classes/usuario';
 export const usauriosConectados = new UsuariosLista();
 
 //CONECTAR UN CLIENTE
-export const conectarCliente = ( cliente: Socket ) => {
+export const conectarCliente = (cliente: Socket, io: socketIO.Server) => {
 
-    const usuario = new Usuario( cliente.id );
-    usauriosConectados.agregar( usuario );
+    const usuario = new Usuario(cliente.id);
+    usauriosConectados.agregar(usuario);
 }
 
 // AQUI VAMOS A DESARROLLAR TODA LA LOGICA DE LOS SOCKETS Y EN EL SERVIDOR SOLO VAMOS A HACER REFERENCIA A ESTE ARCHIVO
+//PARA MANDAR UN MSJ A TODO EL MUNDO, NECESITO UIMPORTAR EL IO. ESTO ES NECESARIO PARA DECIRLE A TODO EL MUNDO QUE TAL PERSONA SE DESCOENCTO
+export const desconectar = (cliente: Socket, io: socketIO.Server) => {
 
-export const desconectar = (cliente: Socket) => {
-    
     cliente.on('disconnect', () => {
         console.log('Cliente desconectado');
 
-        usauriosConectados.borrarUsuario( cliente.id );
+        //aqui es donde borro al usuario que se desconecto
+        usauriosConectados.borrarUsuario(cliente.id);
+
+        //aqio es donde le digo a todos que tal usuario se fue. bueno, en realidad estoy retornando la lista de usuarios activos una vez borrado el usuario desconectado.
+        io.emit('usuarios-activos', usauriosConectados.getLista());
     });
 }
 
@@ -45,17 +49,30 @@ export const mensaje = (cliente: Socket, io: socketIO.Server) => {
 }
 
 //CONFIGURAR USUARIO
-export const loginWs = ( cliente: Socket, io: socketIO.Server ) => {
+export const loginWs = (cliente: Socket, io: socketIO.Server) => {
 
     // desde el cliente estoy enviando el nombre del evento, el payload y la funcion de callback. en el callback puedo devolver informacion al cliente. puedo mandar errores o cialquier cosa
-    cliente.on('configurar-usuario', (paylad : { nombre: string }, callback: Function ) => {
+    cliente.on('configurar-usuario', (paylad: { nombre: string }, callback: Function) => {
 
         //Para actualizar el nombre del usuario que se a conectado
-        usauriosConectados.actualizarNombre( cliente.id, paylad.nombre );
+        usauriosConectados.actualizarNombre(cliente.id, paylad.nombre);
+
+        //aqio es donde le digo a todos que tal usuario se fue. bueno, en realidad estoy retornando la lista de usuarios activos una vez borrado el usuario desconectado.
+        io.emit('usuarios-activos', usauriosConectados.getLista());
 
         callback({
             ok: true,
-            mensaje: `Usuario ${ paylad.nombre } configurado`
-        })
+            mensaje: `Usuario ${paylad.nombre} configurado`
+        });
     });
 }
+
+//OBTENER USAURIOS LOGEADOS
+export const obtenerUsuarios = (cliente: Socket, io: socketIO.Server) => {
+
+    cliente.on('obtener-usuarios', () => {
+
+        io.to( cliente.id ).emit('usuarios-activos', usauriosConectados.getLista());
+    });
+}
+

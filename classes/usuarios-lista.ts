@@ -40,7 +40,7 @@ export class UsuariosLista{
 
     //OBTENER TODA LA LISTA DE USUARIOS
     public getLista(){
-        return this.lista;
+        return this.lista.filter( usuario => usuario.nombre !== 'sin-nombre' );
     }
 
     //RETORNAR UN USUARIO
